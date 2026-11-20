@@ -1,0 +1,197 @@
+import { chromium,expect } from '@playwright/test';
+import pg from 'pg';
+import { MongoClient } from 'mongodb';
+import { mkdir,readFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+
+const origin=process.env.APP_ORIGIN;
+const password=process.env.DEMO_PASSWORD;
+const folder='docs/screenshots';
+const owner=new pg.Client({connectionString:process.env.MIGRATION_DATABASE_URL});
+const mongo=new MongoClient(process.env.MONGODB_URI);
+const preferences=mongo.db(process.env.MONGODB_DB||'encore').collection('preferences');
+await owner.connect();
+const browser=await chromium.launch({channel:process.env.BROWSER_CHANNEL||'msedge',headless:true});
+await mkdir(folder,{recursive:true});
+async function newPage() {
+  const page=await browser.newPage({viewport:{width:1440,height:1050},deviceScaleFactor:1});
+  page.on('pageerror',e=>console.error('Browser error:',e.message));
+  return page;
+}
+async function screenshot(page,name,clip) {
+  await page.screenshot({path:folder+'/'+name+'.png',animations:'disabled',...(clip?{clip}:{})});
+}
+async function login(page,role) {
+  await page.goto(origin+'/sign-in');
+  await page.getByLabel('Email').fill(role+'@encore.test');
+  await page.getByLabel('Password',{exact:true}).fill(password);
+  await page.getByRole('button',{name:'Sign in',exact:true}).click();
+  await page.waitForURL(role==='customer'?'**/account':'**/workspace');
+}
+async function json(page,action,data) {
+  return page.evaluate(async ({action,data})=>{
+    const response=await fetch('/api/'+action,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(data)});
+    return {status:response.status,body:await response.json()};
+  },{action,data});
+}
+const customer=await newPage();
+let demoAccount;
+let event;
+let originalPreference;
+let reference;
+let restoreEventTitle=false;
+try {
+  await customer.goto(origin);
+  await expect(customer.locator('.concert-poster h1')).toBeVisible();
+  await expect(customer.getByRole('link',{name:'View show',exact:true})).toBeVisible();
+  await screenshot(customer,'01-landing');
+  await customer.getByRole('link',{name:'Explore events'}).first().click();
+  await expect(customer.getByRole('heading',{name:'Explore events'})).toBeVisible();
+  await screenshot(customer,'02-discovery');
+  await customer.getByRole('searchbox',{name:'Search events'}).fill('Neon Atlas');
+  await expect(customer.getByText('1 event found')).toBeVisible();
+  await customer.getByRole('link',{name:/After the Signal/}).click();
+  await expect(customer.getByRole('heading',{name:'Choose your seats'})).toBeVisible();
+  event=(await owner.query("SELECT id,title FROM encore.event WHERE title='After the Signal' ORDER BY id LIMIT 1")).rows[0];
+  await screenshot(customer,'03-event');
+  await customer.getByRole('link',{name:'Sign in to reserve'}).click();
+  await expect(customer).toHaveURL(new RegExp('next=/events/'+event.id));
+  await customer.getByLabel('Email').fill('customer@encore.test');
+  await customer.getByLabel('Password',{exact:true}).fill(password);
+  await customer.getByRole('button',{name:'Sign in',exact:true}).click();
+  await customer.waitForURL('**/events/'+event.id);
+  demoAccount=(await owner.query("SELECT id FROM encore.app_user WHERE email='customer@encore.test'")).rows[0];
+  originalPreference=await preferences.findOne({userId:demoAccount.id});
+  const savedToggle=customer.getByRole('button',{name:/^(Save show|Saved to My Encore)$/});
+  await expect(savedToggle).toBeVisible();
+  if(await savedToggle.getAttribute('aria-pressed')==='false') await savedToggle.click();
+  await expect(customer.getByRole('button',{name:'Saved to My Encore'})).toBeVisible();
+  await customer.getByRole('button',{name:'Find available groups'}).click();
+  await expect(customer.getByRole('button',{name:'Select these seats'}).first()).toBeVisible();
+  await customer.getByRole('button',{name:'Select these seats'}).first().click();
+  await customer.setViewportSize({width:1440,height:1300});
+  await customer.getByRole('heading',{name:'Choose your seats'}).scrollIntoViewIfNeeded();
+  await screenshot(customer,'04-seat-recommendation');
+  await customer.setViewportSize({width:1440,height:1050});
+  await customer.getByRole('button',{name:'Hold seats for 5 minutes'}).click();
+  await customer.waitForURL('**/account/bookings/*');
+  reference=new URL(customer.url()).pathname.split('/').at(-1);
+  await expect(customer.getByText(/Hold expires in/)).toBeVisible();
+  await screenshot(customer,'05-hold');
+  await customer.getByRole('button',{name:'Confirm booking'}).click();
+  await expect(customer.getByRole('img',{name:'QR code for ticket verification'})).toBeVisible();
+  await screenshot(customer,'06-confirmation');
+  await customer.getByRole('link',{name:'Open ticket verification'}).click();
+  await expect(customer.getByRole('heading',{name:'Confirmed ticket'})).toBeVisible();
+  const persisted=(await owner.query('SELECT status FROM encore.booking WHERE id=$1',[reference])).rows[0];
+  expect(persisted.status).toBe('confirmed');
+  expect((await owner.query('SELECT new_status FROM encore.audit_log WHERE booking_id=$1 ORDER BY id',[reference])).rows.map(r=>r.new_status)).toEqual(['held','confirmed']);
+  const forbidden=await json(customer,'demo',{name:'Trigger audit'});
+  expect(forbidden.status).toBe(403);
+  await owner.query("UPDATE encore.event SET title='After the Signal — database refresh check' WHERE id=$1",[event.id]);
+  restoreEventTitle=true;
+  await customer.goto(origin+'/events/'+event.id);
+  await expect(customer.getByRole('heading',{name:'After the Signal — database refresh check'})).toBeVisible();
+  await owner.query('UPDATE encore.event SET title=$2 WHERE id=$1',[event.id,event.title]);
+  restoreEventTitle=false;
+  await customer.goto(origin+'/account');
+  await expect(customer.getByRole('heading',{name:/Welcome, Sam/})).toBeVisible();
+  await screenshot(customer,'07-customer');
+  await customer.getByLabel('Favourite genres').fill('Electronic, Jazz');
+  await customer.getByLabel('Budget (₹)',{exact:true}).fill('5900');
+  await customer.getByRole('button',{name:'Save preferences'}).click();
+  await expect(customer.getByText('Preferences saved.')).toBeVisible();
+  expect((await preferences.findOne({userId:demoAccount.id})).budget).toBe(5900);
+  await preferences.updateOne({userId:demoAccount.id},{$set:{budget:6400}});
+  await customer.reload();
+  await expect(customer.getByLabel('Budget (₹)',{exact:true})).toHaveValue('6400');
+  await customer.locator('section').filter({has:customer.getByRole('heading',{name:'Event preferences',exact:true})}).screenshot({path:folder+'/08-preferences.png',animations:'disabled'});
+  customer.once('dialog',dialog=>dialog.accept());
+  await customer.getByRole('button',{name:'Delete preferences'}).click();
+  await expect(customer.getByText('Preferences deleted.')).toBeVisible();
+  expect(await preferences.findOne({userId:demoAccount.id})).toBeNull();
+  await customer.getByLabel('Favourite genres').fill('Electronic');
+  await customer.getByRole('button',{name:'Save preferences'}).click();
+  await expect(customer.getByText('Preferences saved.')).toBeVisible();
+  const organizer=await newPage();
+  await login(organizer,'organizer');
+  await expect(organizer.getByRole('heading',{name:'Your events'})).toBeVisible();
+  await screenshot(organizer,'09-organizer');
+  const title='API synchronization check '+randomUUID().slice(0,8);
+  const original=(await owner.query('SELECT * FROM encore.event WHERE id=$1',[event.id])).rows[0];
+  const edit={eventId:event.id,venueId:original.venue_id,artistId:original.artist_id,categoryId:original.category_id,title,
+    description:original.description,startsAt:original.starts_at.toISOString(),published:true,featured:original.featured,artwork:original.artwork,price:Number((await owner.query("SELECT price FROM encore.ticket_category WHERE event_id=$1 AND name='Standard'",[event.id])).rows[0].price)};
+  expect((await json(organizer,'event',edit)).status).toBe(200);
+  restoreEventTitle=true;
+  expect((await owner.query('SELECT title FROM encore.event WHERE id=$1',[event.id])).rows[0].title).toBe(title);
+  expect((await json(organizer,'event',{...edit,title:event.title})).status).toBe(200);
+  restoreEventTitle=false;
+  const admin=await newPage();
+  await login(admin,'admin');
+  await expect(admin.getByRole('heading',{name:'Platform overview'})).toBeVisible();
+  await screenshot(admin,'10-administrator');
+  await admin.getByRole('link',{name:'DBMS Explorer'}).click();
+  await admin.getByRole('button',{name:'Run example'}).click();
+  await expect(admin.getByText(/\d+ rows returned/)).toBeVisible();
+  await screenshot(admin,'11-sql');
+  await admin.getByLabel('Example').selectOption('Trigger audit');
+  await admin.getByRole('button',{name:'Run example'}).click();
+  await expect(admin.getByText(/new_status.*confirmed/s)).toBeVisible();
+  await screenshot(admin,'12-trigger');
+  await admin.getByLabel('Example').selectOption('MongoDB genre counts');
+  await admin.getByRole('button',{name:'Run example'}).click();
+  await expect(admin.getByText(/"_id": "Electronic"/)).toBeVisible();
+  await screenshot(admin,'13-mongo');
+  await admin.getByLabel('Example').selectOption('MongoDB CRUD');
+  await admin.getByRole('button',{name:'Run example'}).click();
+  await expect(admin.getByText(/"deletedCount": 1/)).toBeVisible();
+  await admin.getByText(/"deletedCount": 1/).scrollIntoViewIfNeeded();
+  await screenshot(admin,'16-mongo-crud');
+  await admin.getByLabel('Example').selectOption('DML lifecycle');
+  await admin.getByRole('button',{name:'Run example'}).click();
+  await expect(admin.getByText(/"operation": "DELETE"/)).toBeVisible();
+  await admin.getByRole('heading',{name:'Relational design'}).scrollIntoViewIfNeeded();
+  const erd=admin.getByRole('img',{name:'Entity relationship diagram for Encore'});
+  await expect(erd).toBeVisible();
+  await erd.screenshot({path:folder+'/14-schema.png'});
+  const register=await newPage();
+  await register.goto(origin+'/sign-in');
+  await register.getByRole('button',{name:'Create a customer account'}).click();
+  const email='browser-'+randomUUID()+'@test.invalid';
+  await register.getByLabel('Name',{exact:true}).fill('Browser Test');
+  await register.getByLabel('Email').fill(email);
+  await register.getByLabel('Password',{exact:true}).fill(randomUUID());
+  await register.getByRole('button',{name:'Create account',exact:true}).click();
+  await register.waitForURL('**/account');
+  const account=(await owner.query('SELECT role,password_hash FROM encore.app_user WHERE email=$1',[email])).rows[0];
+  expect(account.role).toBe('customer');
+  expect(account.password_hash).toMatch(/^[0-9a-f]{32}:[0-9a-f]{128}$/);
+  await register.getByRole('button',{name:'Sign out'}).click();
+  await register.waitForURL(origin+'/');
+  await owner.query('DELETE FROM encore.app_user WHERE email=$1',[email]);
+  const source=await readFile('lib/postgres.ts','utf8');
+  const code=await newPage();
+  await code.setContent('<html><body style="font:18px system-ui;background:#211b22;color:#f1e3ee;padding:30px"><h1>lib/postgres.ts</h1><pre style="font-size:17px;line-height:1.5"></pre></body></html>');
+  await code.locator('pre').evaluate((node,value)=>node.textContent=value,source);
+  await screenshot(code,'15-source');
+  await customer.goto(origin+'/account/bookings/'+reference);
+  customer.once('dialog',dialog=>dialog.accept());
+  await customer.getByRole('button',{name:'Cancel booking'}).click();
+  await expect(customer.getByText('Booking cancelled.',{exact:true})).toBeVisible();
+  expect((await owner.query('SELECT status FROM encore.booking WHERE id=$1',[reference])).rows[0].status).toBe('cancelled');
+  reference=undefined;
+  const mobile=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  await mobile.goto(origin+'/events');
+  await expect(mobile.getByRole('heading',{name:'Explore events'})).toBeVisible();
+  expect(await mobile.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  console.log('Browser checks passed. Screenshots are in '+folder+'.');
+} finally {
+  try {
+    if(restoreEventTitle) await owner.query('UPDATE encore.event SET title=$2 WHERE id=$1',[event.id,event.title]);
+    if(demoAccount){
+      if(originalPreference) await preferences.replaceOne({userId:demoAccount.id},originalPreference,{upsert:true});
+      else await preferences.deleteOne({userId:demoAccount.id});
+    }
+    if(reference) await json(customer,'cancel',{bookingId:reference});
+  } finally {await browser.close();await owner.end();await mongo.close()}
+}

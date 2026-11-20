@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encore Study and Demo Guide</title>
+<style>
+:root{color-scheme:light;--paper:#f5f6f2;--white:#fff;--ink:#202620;--muted:#536051;--line:#d8dfd3;--green:#3e5d16;--lime:#d7f875;--night:#121912;--pale:#eff5e7;--radius:13px}
+*{box-sizing:border-box}
+html{scroll-padding-top:1rem}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.58 system-ui,"Segoe UI",sans-serif}
+a{color:var(--green);text-underline-offset:.2em}
+:focus-visible{outline:3px solid #5d821e;outline-offset:3px}
+h1,h2,h3{line-height:1.15;letter-spacing:-.028em;margin:0 0 .65rem}
+h1{font-size:clamp(2.25rem,7vw,4.4rem);max-width:17ch}
+h2{font-size:clamp(1.55rem,4vw,2.22rem)}
+h3{font-size:1.14rem}
+p{margin:.38rem 0 .8rem}
+ul,ol{padding-left:1.3rem;margin:.4rem 0 .8rem}
+li+li{margin-top:.32rem}
+.wrap{width:min(1080px,calc(100% - 40px));margin-inline:auto}
+.hero{background:var(--night);color:#f7faef;padding:3rem 0 2.6rem;border-bottom:5px solid var(--lime)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,290px);gap:2rem;align-items:end}
+.hero p{color:#d6dfce;max-width:60ch}
+.eyebrow{color:var(--green);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:.13em}
+.hero .eyebrow{color:var(--lime)}
+.hero-aside{border:1px solid #50614c;border-radius:var(--radius);padding:.9rem 1rem;background:#222e20;font-size:.9rem}
+.hero-aside p{margin:.25rem 0}
+.hero-aside strong{color:var(--lime)}
+.actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+button{font:inherit;font-size:.9rem;font-weight:700;border:1px solid var(--line);border-radius:7px;padding:.45rem .7rem;cursor:pointer;color:var(--ink);background:var(--white)}
+button:hover{background:var(--pale)}
+.hero button{background:var(--lime);color:var(--night);border-color:transparent}
+.contents{margin:1.3rem 0 1.55rem;padding:1rem 1.15rem;border:1px solid var(--line);border-radius:var(--radius);background:var(--white)}
+.contents ol{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));column-gap:1.8rem;row-gap:.28rem;margin-bottom:0}
+.contents li+li{margin-top:0}
+.contents a{font-weight:650}
+.section{margin-bottom:1.2rem;padding:clamp(1rem,3.6vw,2.05rem);background:var(--white);border:1px solid var(--line);border-radius:var(--radius)}
+.section > header{border-bottom:1px solid var(--line);margin-bottom:1rem;padding-bottom:.5rem}
+.section > header .eyebrow{margin:0 0 .45rem}
+.subsection{margin-top:1.28rem}
+.callout{border-left:4px solid #658f26;background:var(--pale);padding:.72rem .95rem;margin:.8rem 0 1rem;border-radius:0 7px 7px 0}
+.callout p:last-child{margin-bottom:0}
+.speak{font-weight:600;font-size:1.03rem}
+.muted{color:var(--muted)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.mini{background:#f8faf5;border:1px solid var(--line);border-radius:9px;padding:.72rem .85rem}
+.mini p:last-child{margin:0}
+.flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;margin:.8rem 0}
+.flow article{padding:.82rem;background:var(--pale);border:1px solid var(--line);border-radius:9px}
+.flow strong{display:block;color:var(--green);margin-bottom:.35rem}
+.flow p{margin:0;font-size:.92rem}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;vertical-align:top;padding:.55rem .62rem;border-bottom:1px solid var(--line);overflow-wrap:anywhere}
+th{background:var(--pale);color:#31471c;font-weight:800}
+tbody tr:nth-child(even){background:#f9faf7}
+tbody tr:last-child td{border-bottom:0}
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;margin:.6rem 0 .8rem}
+.code-label{display:block;font-weight:800;color:var(--green);font-size:.8rem;margin:.8rem 0 .25rem}
+code,pre{font-family:ui-monospace,"Cascadia Code",Consolas,monospace}
+code{font-size:.86em;overflow-wrap:anywhere}
+p code,li code,td code{background:#edf2e8;padding:.1rem .24rem;border-radius:4px}
+pre{overflow:auto;background:#192219;color:#eef7e9;padding:.75rem .92rem;border-radius:8px;margin:.3rem 0 .75rem;font-size:.84rem;line-height:1.47;tab-size:2}
+pre code{font-size:inherit}
+.timeline{list-style:none;padding:0;counter-reset:step}
+.timeline li{position:relative;padding:.64rem .75rem .63rem 2.8rem;border-bottom:1px solid var(--line);counter-increment:step}
+.timeline li:before{content:counter(step);position:absolute;left:.35rem;top:.58rem;display:grid;place-items:center;width:1.62rem;height:1.62rem;color:#2e4911;background:#e5efdb;border-radius:50%;font-weight:800}
+.state-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5rem;margin:.8rem 0}
+.state-list div{border:1px solid var(--line);padding:.58rem;border-radius:8px;background:#f8faf5;font-size:.85rem}
+.state-list strong{display:block;margin-bottom:.23rem}
+.demo-slot{display:grid;grid-template-columns:112px minmax(0,1fr);gap:.85rem;border-bottom:1px solid var(--line);padding:.7rem 0}
+.demo-slot:last-child{border-bottom:0}
+.demo-slot .time{align-self:start;font-weight:800;font-size:.83rem;color:var(--green);background:var(--pale);padding:.42rem;border-radius:7px}
+.demo-slot p{margin:.24rem 0}
+details{margin:.55rem 0;border:1px solid var(--line);border-radius:8px;background:#f8faf5}
+summary{padding:.62rem .75rem;cursor:pointer;font-weight:750}
+details>div{padding:0 .75rem .6rem}
+details p:last-child{margin-bottom:0}
+.checklist{list-style:none;padding-left:0}
+.checklist li{margin:.4rem 0}
+.checklist label{display:flex;gap:.5rem;align-items:baseline}
+.checklist input{accent-color:#567b22}
+footer{color:var(--muted);font-size:.85rem;padding:0 0 1.5rem}
+@media(max-width:700px){
+ .hero-grid,.flow{grid-template-columns:1fr;gap:.65rem}
+ .hero{padding:1.8rem 0}
+ .hero-aside{max-width:32rem}
+ .contents ol,.state-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .grid-2{grid-template-columns:1fr}
+ .demo-slot{grid-template-columns:1fr;gap:.33rem}
+ .demo-slot .time{width:fit-content}
+ .wrap{width:calc(100% - 24px)}
+ th,td{padding:.43rem .46rem}
+}
+@media print{
+ @page{size:A4;margin:13mm}
+ body{background:#fff;color:#192219;font-size:10pt;line-height:1.38}
+ .wrap{width:100%;max-width:none}
+ .hero{background:white;color:var(--ink);border-bottom:2px solid var(--green);padding:.25rem 0 .65rem}
+ .hero h1{font-size:26pt;max-width:none}
+ .hero .eyebrow,.hero-aside strong{color:var(--green)}
+ .hero p{color:var(--ink)}
+ .hero-grid{display:block}
+ .hero-aside{background:transparent;border:0;padding:0;margin:.3rem 0}
+ .contents,.section{border:0;border-radius:0;padding:0;margin:1rem 0}
+ .section>header,h3,.code-label{break-after:avoid}
+ .section>header{padding-bottom:.25rem}
+ .actions,.no-print,footer{display:none!important}
+ pre{background:#f1f3ef;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;font-size:8pt;border:1px solid var(--line)}
+ details,.demo-slot,.flow,.mini,pre,tr{break-inside:avoid}
+ .table-wrap{overflow:visible}
+ thead{display:table-header-group}
+}
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <p class="eyebrow">Encore · Team study notes</p>
+    <h1>Build, explain, and demo Encore</h1>
+    <p>Concert and Live Event Management and Intelligent Seat Reservation System. Use these notes to trace one booking, find the relevant files, and rehearse the database viva together.</p>
+  </div>
+  <aside class="hero-aside">
+    <p><strong>Start here</strong></p>
+    <p>First learn the five-minute booking flow. Then rehearse the customer and admin demos in two browser profiles.</p>
+    <div class="actions no-print"><button type="button" id="print-notes">Print / Save as PDF</button></div>
+  </aside>
+</div></header>
+<main class="wrap">
+<nav class="contents" aria-label="Guide contents">
+  <h2>Study plan</h2>
+  <ol>
+    <li><a href="#overview">Project in 30 seconds</a></li>
+    <li><a href="#stack">What we used and why</a></li>
+    <li><a href="#model">Data model</a></li>
+    <li><a href="#booking">Booking and recommendations</a></li>
+    <li><a href="#access">Login and permissions</a></li>
+    <li><a href="#files">Where everything is</a></li>
+    <li><a href="#setup">Run the local demo</a></li>
+    <li><a href="#demo">Live demo script</a></li>
+    <li><a href="#viva">Viva practice</a></li>
+  </ol>
+</nav>
+
+<section class="section" id="overview">
+  <header><p class="eyebrow">01 · Explain</p><h2>Project in 30 seconds</h2></header>
+  <div class="callout"><p class="speak">“Encore is a concert ticketing demo. A customer finds a show, chooses seats or asks for adjacent-seat suggestions, places a five-minute hold, and confirms to receive a QR ticket. PostgreSQL manages event inventory and bookings with transactions and row locks. MongoDB stores customer preferences. The organizer manages events, and the administrator can demonstrate live database operations.”</p></div>
+  <div class="grid-2">
+    <article class="mini"><h3>Customer experience</h3><p>Browse and filter shows, see the schedule and ticket prices, jump to the seat map with <strong>Book tickets</strong>, and manage bookings and preferences in My Encore.</p></article>
+    <article class="mini"><h3>Example show</h3><p><strong>Campus After Hours</strong> is a fictional PES University Bengaluru listing. It has 90 demo seat records across Main Floor, Gallery, and Balcony, with prices seeded from ₹499. Confirming a booking does not charge money.</p></article>
+  </div>
+</section>
+
+<section class="section" id="stack">
+  <header><p class="eyebrow">02 · Understand</p><h2>What we used and why</h2></header>
+  <div class="flow" aria-label="Request flow from browser to server to databases">
+    <article><strong>1 · Browser</strong><p>React handles filters, seat selection, feedback, and the countdown. The UI sends event and seat identifiers to the API.</p></article>
+    <article><strong>2 · Next.js server</strong><p>App Router renders pages. Route handlers validate input with Zod, check the session and role, then call database code.</p></article>
+    <article><strong>3 · Databases</strong><p>PostgreSQL commits bookings and records audit events. MongoDB reads and writes preferences independently.</p></article>
+  </div>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Tool</th><th scope="col">Why we used it</th><th scope="col">Example in Encore</th></tr></thead>
+    <tbody>
+      <tr><td>Next.js, React, TypeScript</td><td>Pages and backend endpoints in one project, with shared types for event and seat data.</td><td>Server reads show data. The client seat map polls inventory and posts selected IDs.</td></tr>
+      <tr><td>PostgreSQL and <code>pg</code></td><td>Foreign keys, constraints, transactions, row locks, and row-level security support reliable reservations.</td><td><code>reserve_seats</code> uses <code>FOR UPDATE</code> on the inventory rows.</td></tr>
+      <tr><td>MongoDB and its Node driver</td><td>One document groups a customer's preference arrays and optional choices. The data can evolve independently from booking tables.</td><td>My Encore saves genres, artists, category, seating preferences, budget, and accessibility preference.</td></tr>
+      <tr><td>Zod and Node crypto</td><td>Validate request shapes and implement password hashing and session tokens.</td><td>Seat ID counts are checked at the API. Passwords are salted and hashed with <code>scrypt</code>.</td></tr>
+      <tr><td>Tailwind CSS, custom CSS, Lucide</td><td>Build responsive screens with shared dark styles, accessible controls, and recognizable icons.</td><td><code>app/styles.css</code> styles the catalogue, date cards, forms, seat states, and ticket.</td></tr>
+      <tr><td><code>qrcode</code></td><td>Make the ticket's verification URL scannable.</td><td>The URL contains the booking UUID and opens a page with limited ticket status information.</td></tr>
+      <tr><td>Docker Compose, Node test runner, Playwright</td><td>Set up local databases and check behavior at different layers.</td><td>Compose defines both databases. The integration suite checks two competing holds. Playwright covers browser flows.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><p><strong>Implementation order.</strong> Define the schema and role policies. Add SQL procedures for holds, confirmation, and cancellation. Connect them to the server, build the browser controls, then add demo data and verification examples. The show descriptions and PES inventory are added by <code>db/009_show_details.sql</code>.</p></div>
+</section>
+
+<section class="section" id="model">
+  <header><p class="eyebrow">03 · Draw</p><h2>Data model and key constraints</h2></header>
+  <p>For a whiteboard answer, draw these relationships. The full diagram appears in the DBMS Explorer and at <code>public/erd.png</code>.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Tables or collection</th><th scope="col">What to say in the viva</th></tr></thead>
+    <tbody>
+      <tr><td><code>venue</code> → <code>section</code> → <code>seat</code></td><td>A venue has sections. A section has numbered seats in rows. The section supplies the distance used for recommendations.</td></tr>
+      <tr><td><code>event</code>, <code>artist</code>, <code>category</code></td><td>An event links its artist, category, venue, and organizer. Store a venue once and reuse it across events. Categories can link to a parent category.</td></tr>
+      <tr><td><code>event_seat</code> and <code>ticket_category</code></td><td><code>(event_id, seat_id)</code> uniquely identifies one seat for one performance. The same physical seat can be sold for a different event. Composite foreign keys enforce a matching venue and event.</td></tr>
+      <tr><td><code>booking</code> → <code>booking_seat</code></td><td>A booking gets a UUID, customer, event, status, and expiry. Child rows store the selected seat IDs and capture their prices at hold time.</td></tr>
+      <tr><td><code>event_seat.holder</code> and <code>audit_log</code></td><td>The holder points to the current booking for that event seat. The audit table keeps a timestamped history of booking status changes, including the original hold.</td></tr>
+      <tr><td><code>app_user</code>, <code>session</code>, <code>event_activity</code></td><td>Accounts and their roles live in PostgreSQL. Session rows expire. Saved shows and recent views are attached to user and event IDs.</td></tr>
+      <tr><td>MongoDB <code>preferences</code></td><td>The unique <code>userId</code> index limits each PostgreSQL user ID to one preference document. The app connects the two records by user ID.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Indexes to remember.</strong> Published events by start time help discovery. Booking rows are indexed by customer and date for history. A partial expiry index covers held bookings. A unique MongoDB index speeds up lookup by user ID and prevents duplicate profiles.</p>
+  <div class="callout"><p><strong>Current price and booked price.</strong> <code>ticket_category.price</code> is the current selling price. <code>booking_seat.price</code> is the historical snapshot. Changing the first leaves the old booking total intact.</p></div>
+</section>
+
+<section class="section" id="booking">
+  <header><p class="eyebrow">04 · Trace</p><h2>A booking from click to database</h2></header>
+  <ol class="timeline">
+    <li><strong>Open a show and click Book tickets.</strong> The show page jumps to the seat map. <code>GET /api/inventory?eventId=…</code> refreshes inventory about every eight seconds. Selecting a seat highlights it locally.</li>
+    <li><strong>Hold 1–8 seats.</strong> The browser sends IDs to <code>POST /api/reserve</code>. The server verifies the customer session and opens a transaction. <code>reserve_seats</code> locks event inventory rows in ascending seat ID order and checks availability again.</li>
+    <li><strong>Save the hold atomically.</strong> PostgreSQL creates a <code>held</code> booking with a five-minute expiry, captures line prices, and points the event seats at the new booking. If a requested seat fails the check, the transaction rolls back.</li>
+    <li><strong>Confirm or cancel.</strong> <code>POST /api/confirm</code> checks the customer's ownership, hold expiry, and seat ownership before moving the booking to <code>confirmed</code>. Cancellation changes status and clears the holder for the booking's seats while retaining its history.</li>
+    <li><strong>Show the evidence.</strong> The audit trigger writes the old and new status. The confirmation page creates a QR link to <code>/ticket/[reference]</code>. The verification route checks the stored booking status and whether the event is published.</li>
+  </ol>
+  <div class="state-list" aria-label="Booking status meanings">
+    <div><strong>Held</strong>Reserved until the deadline.</div>
+    <div><strong>Confirmed</strong>Seat is booked and a QR ticket is available.</div>
+    <div><strong>Cancelled</strong>History stays, seat becomes available.</div>
+    <div><strong>Expired</strong>The hold can no longer be confirmed.</div>
+  </div>
+  <div class="grid-2">
+    <article class="mini"><h3>Two customers, one seat</h3><p>A locks the row and commits a hold. B waits for that lock, then rechecks the row and sees A's hold. B's request fails. The lock and the server-side check are what prevent a double booking.</p></article>
+    <article class="mini"><h3>When time runs out</h3><p>An expired hold is reclaimable immediately. The Explorer's <strong>Expire holds</strong> procedure records <code>expired</code> on overdue rows, which also produces an audit entry. A screen timer is visual feedback. The database timestamp decides eligibility.</p></article>
+  </div>
+  <div class="subsection">
+    <h3>How seat suggestions work</h3>
+    <p><code>lib/recommend.ts</code> groups currently available seats by section and row, sorts by seat number, and considers windows of the requested size. It rejects gaps in numbering, groups exceeding the total budget, and groups without an accessible seat when one is requested. The section preference earns a bonus. It does not exclude other sections.</p>
+    <span class="code-label">Scoring rule (the highest three candidates are returned)</span>
+    <pre><code>score = 40
+      + 25 × (1 − total cost / max(budget, 1))
+      + 15 if the section matches or no section is preferred
+      + 20 / (1 + |distance − preferred distance| / 8)
+
+Rounded to the nearest integer. Ties favor lower total cost.</code></pre>
+    <p><strong>Worked example.</strong> Two adjacent Gallery seats at ₹499 each cost ₹998. With a ₹1,200 budget, Gallery selected, and a preferred distance of 14 m (the Gallery distance), the group scores approximately <strong>79/100</strong>. Two ₹999 Main Floor seats are excluded by that budget.</p>
+    <p class="muted">This is a rules-based ranking. The event-page <strong>Recommended shows</strong> section is separate and ranks upcoming events by matching artist, genre, then city. My Encore also uses saved preferences to find matching events.</p>
+  </div>
+</section>
+
+<section class="section" id="access">
+  <header><p class="eyebrow">05 · Defend</p><h2>Login, roles, and permissions</h2></header>
+  <p>Login verifies a salted <code>scrypt</code> hash. The browser stores an opaque token in an HTTP-only cookie. PostgreSQL stores a digest of the token and the session expires after 12 hours. Each protected request resolves the user and their current role on the server.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">Role</th><th scope="col">What they can demonstrate</th></tr></thead>
+    <tbody>
+      <tr><td>Guest</td><td>Browse published events, inspect availability, and open the limited ticket verification page.</td></tr>
+      <tr><td>Customer</td><td>Reserve seats, see their own bookings, save shows, and update their own preferences.</td></tr>
+      <tr><td>Organizer</td><td>Manage their own event listings and see their event inventory, confirmed booking value, and occupancy.</td></tr>
+      <tr><td>Administrator</td><td>Manage event and venue data, user access, and run approved SQL and MongoDB examples in DBMS Explorer.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>Explain the three checks.</strong> The page protects staff routes. The API checks roles before handling requests. PostgreSQL <code>GRANT</code> rules limit permitted operations, while row-level security (RLS) limits which rows a role can see or edit. The server uses <code>SET LOCAL ROLE</code> and a transaction-local user ID, so the connection pool can reuse the connection safely.</p>
+</section>
+
+<section class="section" id="files">
+  <header><p class="eyebrow">06 · Find</p><h2>Where everything lives</h2></header>
+  <p>Paths below are relative to the <code>encore</code> project folder. In the viva, show the interface first, then open a source file to explain the behavior.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th scope="col">If they ask about…</th><th scope="col">Open this</th></tr></thead>
+    <tbody>
+      <tr><td>Home, catalogue filters, show details</td><td><code>app/page.tsx</code>, <code>app/events/page.tsx</code>, <code>app/events/[id]/page.tsx</code>, <code>components/event-discovery.tsx</code>, <code>components/show-information.tsx</code></td></tr>
+      <tr><td>Event data and related shows</td><td><code>lib/catalog.ts</code>. Campus show, pricing, seating dataset and per-show notes are in <code>db/009_show_details.sql</code>.</td></tr>
+      <tr><td>Seat UI and ranking</td><td><code>components/seat-map.tsx</code>, <code>lib/recommend.ts</code></td></tr>
+      <tr><td>What happens after a button click</td><td><code>components/actions.tsx</code> sends JSON. <code>app/api/[action]/route.ts</code> validates the input and dispatches to the requested action.</td></tr>
+      <tr><td>Reservation procedures, prices and auditing</td><td><code>db/002_booking.sql</code> has the booking procedures and trigger. <code>lib/bookings.ts</code> reads booking history and line totals.</td></tr>
+      <tr><td>Login, RLS, and database connections</td><td><code>lib/auth.ts</code>, <code>lib/postgres.ts</code>, <code>db/003_security.sql</code>, <code>db/007_visibility.sql</code></td></tr>
+      <tr><td>Preferences CRUD</td><td><code>components/preferences.tsx</code>, <code>lib/mongo.ts</code>, and the preferences actions in <code>app/api/[action]/route.ts</code></td></tr>
+      <tr><td>Customer history and QR</td><td><code>app/account/</code>, <code>app/ticket/[reference]/page.tsx</code>, <code>db/006_ticket.sql</code></td></tr>
+      <tr><td>Staff tools and SQL examples</td><td><code>app/workspace/</code>, <code>components/staff-forms.tsx</code>, <code>components/explorer.tsx</code>, <code>db/demo.mjs</code></td></tr>
+      <tr><td>Schema, setup, tests, and diagram</td><td><code>db/001_schema.sql</code>, <code>scripts/setup.mjs</code>, <code>scripts/integration.test.mjs</code>, <code>public/erd.png</code>, <code>docs/schema.md</code></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="setup">
+  <header><p class="eyebrow">07 · Prepare</p><h2>Run the local demo</h2></header>
+  <div class="grid-2">
+    <article class="mini"><h3>On the prepared laptop</h3><p>Open <a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a> when the app is running. If it has stopped, open PowerShell in <code>encore</code> and use the commands below. Keep PostgreSQL and MongoDB running.</p></article>
+    <article class="mini"><h3>On a teammate's laptop</h3><p>Use the current source folder, Node.js 22 or newer, and local PostgreSQL and MongoDB. The project includes Compose for a fresh setup. Read <code>README.md</code> before entering credentials.</p></article>
+  </div>
+  <span class="code-label">Prepared build and demo password (PowerShell)</span>
+  <pre><code>npm start -- --hostname 127.0.0.1
+# In a second terminal in the same folder
+Select-String -Path .env.local -Pattern '^DEMO_PASSWORD='</code></pre>
+  <p>Use the password configured during seed setup with <code>customer@encore.test</code>, <code>organizer@encore.test</code>, or <code>admin@encore.test</code>. Keep the password out of the presentation and use the exact origin in <code>APP_ORIGIN</code>. Separate browser profiles can keep customer and admin sessions open at the same time.</p>
+  <span class="code-label">Fresh setup with Docker Compose (PowerShell)</span>
+  <pre><code>Copy-Item .env.example .env.local
+# Fill in the database settings and initial demo password in .env.local
+npm ci
+docker compose --env-file .env.local up -d
+npm run db:setup
+npm run build -- --webpack
+npm start -- --hostname 127.0.0.1</code></pre>
+  <p>Copy the env template only on a fresh setup. The migration account applies SQL and seed data. The app uses the separate runtime account. Database URLs, passwords, ports, and the app origin belong in the local env file. Use the initially seeded demo password if the database already exists.</p>
+  <div class="callout"><p><strong>Before presenting.</strong> Open the catalogue and sign in as customer and admin. If a rebuild is needed, stop the old app server before rebuilding and restarting it. Refresh with <kbd>Ctrl</kbd>+<kbd>F5</kbd> if a browser still shows the previous styles.</p></div>
+</section>
+
+<section class="section" id="demo">
+  <header><p class="eyebrow">08 · Rehearse</p><h2>Live demo in about eight minutes</h2></header>
+  <p>Person A drives the customer journey. Person B explains how the data changed, runs the Explorer examples, and handles database follow-up questions. Switch roles during practice so both people know the whole system.</p>
+
+  <div class="demo-slot"><div class="time">0:00–1:00 · A</div><div><strong>Start with the catalogue.</strong><p>Search for <em>Campus After Hours</em>. Show the description, doors and start times, the Standard and Front Row prices, and the related-show cards. Click <strong>Book tickets</strong>.</p></div></div>
+  <div class="demo-slot"><div class="time">1:00–3:00 · A</div><div><strong>Book two seats.</strong><p>Sign in as customer. Filter to the Gallery, or use <strong>Find seats together</strong> with 2 seats, ₹1,200 total, Gallery, and 14 m. Pick a result and explain the recommendation. Hold the seats, point to the countdown, confirm, and open <strong>Open ticket verification</strong>. Keep the booking reference.</p></div></div>
+  <div class="demo-slot"><div class="time">3:00–4:30 · B</div><div><strong>Prove the rows changed.</strong><p>Sign in as admin in a separate profile. Open <strong>Workspace → DBMS Explorer → Trigger audit</strong> and match the booking reference. Run <strong>JOIN and occupancy</strong> or <strong>CTE and LEFT JOIN</strong> to show the confirmed count or occupancy. Use <strong>Constraints</strong> when asked to show schema evidence.</p></div></div>
+  <div class="demo-slot"><div class="time">4:30–5:45 · Both</div><div><strong>Show what MongoDB stores.</strong><p>In My Encore, save <em>Indie</em> and a budget in Event preferences. In Explorer, run <strong>MongoDB genre counts</strong> to show the aggregation. Run <strong>MongoDB CRUD</strong> to show create, read, update, and delete on a temporary document.</p></div></div>
+  <div class="demo-slot"><div class="time">5:45–7:00 · B</div><div><strong>Explain roles and double booking.</strong><p>Show the organizer workspace and its event controls. Explain that the same seat can appear available in two browsers until a hold commits. On a disposable demo database, <code>npm test</code> can show the concurrent-hold proof: exactly one request succeeds, and the other is rejected.</p></div></div>
+  <div class="demo-slot"><div class="time">7:00–8:00 · Both</div><div><strong>Close with cancellation.</strong><p>As the customer, cancel the future booking. Refresh the seat map and verification page. In the Explorer, run <strong>Trigger audit</strong> again to show <code>confirmed → cancelled</code>.</p></div></div>
+
+  <div class="subsection">
+    <h3>Quick database proof</h3>
+    <p>Use the Explorer when possible. If the examiner wants direct SQL, replace <code>BOOKING_UUID</code> with the reference from the ticket and run these read-only statements against the demo database.</p>
+    <pre><code>SELECT b.id, b.status, b.expires_at, s.seat_id, s.price
+FROM encore.booking b
+JOIN encore.booking_seat s ON s.booking_id = b.id
+WHERE b.id = 'BOOKING_UUID'::uuid;
+
+SELECT old_status, new_status, happened_at
+FROM encore.audit_log
+WHERE booking_id = 'BOOKING_UUID'::uuid
+ORDER BY id;</code></pre>
+    <p>To inspect a preference directly in <code>mongosh</code>, get the customer ID from PostgreSQL first. In the MongoDB database selected by <code>MONGODB_DB</code>, run <code>db.preferences.findOne({ userId: CUSTOMER_ID })</code> with that numeric value.</p>
+    <p><strong>Other Explorer examples.</strong> <strong>DML lifecycle</strong> demonstrates inserts, updates and deletes with a temporary table. <strong>Nested query</strong> finds events at Bengaluru venues. <strong>Correlated query</strong> counts confirmed bookings per event. <strong>Recursive query</strong> walks the category tree. <strong>CTE and LEFT JOIN</strong> keeps events that have zero bookings in the rollup.</p>
+  </div>
+  <div class="subsection">
+    <h3>Before you share the screen</h3>
+    <ul class="checklist">
+      <li><label><input type="checkbox">The local catalogue opens and the chosen demo show is still upcoming.</label></li>
+      <li><label><input type="checkbox">Customer, organizer, and admin sign-ins are ready.</label></li>
+      <li><label><input type="checkbox">We know the example seats, section, and budget we plan to choose.</label></li>
+      <li><label><input type="checkbox">We can open the booking audit, ER diagram, and MongoDB examples.</label></li>
+      <li><label><input type="checkbox">Both of us can explain why two requests cannot hold the same seat.</label></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section" id="viva">
+  <header><p class="eyebrow">09 · Practice</p><h2>Viva flashcards</h2></header>
+  <p>Say your answer out loud before revealing the notes.</p>
+  <div class="actions no-print"><button type="button" id="reveal">Reveal all answers</button><button type="button" id="hide">Hide all answers</button></div>
+  <details><summary>Why does the project need two databases?</summary><div><p>PostgreSQL enforces inventory relationships and handles atomic booking transactions. MongoDB keeps a customer's preference arrays and optional choices together in one document. A preference update can happen independently from a booking.</p></div></details>
+  <details><summary>How do we prevent two customers from booking the same seat?</summary><div><p>There is one inventory row for the pair of event and seat IDs. The procedure locks that row, checks availability again, and writes the new holder in the same transaction. The second request waits, rechecks, and fails if the seat is held or booked.</p></div></details>
+  <details><summary>What is the difference between a hold and a confirmed booking?</summary><div><p>A hold reserves seats temporarily and carries a deadline. Confirmation checks ownership and expiry and produces a verifiable ticket. An expired hold becomes reclaimable.</p></div></details>
+  <details><summary>What happens if one seat in a group is unavailable?</summary><div><p>The procedure checks the whole group after locking it. If the available count differs from the number requested, it rejects the request. The transaction rolls back so the customer does not get part of the group.</p></div></details>
+  <details><summary>Why keep the price on a booking line?</summary><div><p>It records the price at hold time. If staff change the current category price later, the old ticket total remains correct.</p></div></details>
+  <details><summary>What is row-level security?</summary><div><p>A PostgreSQL policy that filters access to individual rows. In Encore, customers read their own bookings and organizers manage their own events. Grants determine which operations a role has permission to attempt.</p></div></details>
+  <details><summary>How do a function, procedure, and trigger differ here?</summary><div><p>We use a function such as <code>booking_total</code> in a query. We explicitly <code>CALL</code> a procedure such as <code>confirm_booking</code>. The audit trigger runs automatically when a booking is inserted or its status changes.</p></div></details>
+  <details><summary>Why does the confirmed-booking report use a LEFT JOIN?</summary><div><p>It keeps every event in the result, including events with no matching booking count. <code>COALESCE</code> turns the missing count into zero.</p></div></details>
+  <details><summary>What is recursive about the category query?</summary><div><p>It begins with root categories, joins to their children, then repeats on each new layer. Its path tracks visited IDs to prevent a cycle within a traversal.</p></div></details>
+  <details><summary>How do the recommendations use accessibility?</summary><div><p>If the customer requests accessibility, the group must contain at least one seat marked accessible. Contiguity and budget remain required, and the remaining groups are ranked with the scoring rule.</p></div></details>
+  <details><summary>What does the QR code verify?</summary><div><p>It opens a link containing a booking UUID. The server checks that the booking is confirmed and its show is published. The public page displays the show, time, and ticket status without customer details.</p></div></details>
+  <details><summary>What belongs outside this local demo?</summary><div><p>A real deployment would need payment processing if it charges customers, production infrastructure, monitoring, and stronger operational controls. The current show listings and payment-free bookings are for demonstration.</p></div></details>
+</section>
+<footer>Encore study notes · Based on the current project source and its local demo flows</footer>
+</main>
+<script>
+const flashcards = [...document.querySelectorAll('#viva details')];
+document.getElementById('reveal').addEventListener('click', () => flashcards.forEach(card => {card.open = true;}));
+document.getElementById('hide').addEventListener('click', () => flashcards.forEach(card => {card.open = false;}));
+document.getElementById('print-notes').addEventListener('click', () => window.print());
+let previousOpen = null;
+window.addEventListener('beforeprint', () => {
+  previousOpen ??= flashcards.map(card => card.open);
+  flashcards.forEach(card => {card.open = true;});
+});
+window.addEventListener('afterprint', () => {
+  if (previousOpen) flashcards.forEach((card, index) => {card.open = previousOpen[index];});
+  previousOpen = null;
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:18
+    environment:
+      POSTGRES_DB: encore
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.local}
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres:/var/lib/postgresql"]
+  mongo:
+    image: mongo:8
+    ports: ["127.0.0.1:27017:27017"]
+    volumes: ["mongo:/data/db"]
+volumes:
+  postgres:
+  mongo:
